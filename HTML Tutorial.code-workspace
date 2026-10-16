@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"name": "HTML Tutorial",
+			"path": "."
+		},
+		{
+			"name": "Images",
+			"path": "../../../Desktop/Images"
+		},
+		{
+			"name": "Javascript tutorial",
+			"path": "../../../../../../Javascript tutorial"
+		},
+		{
+			"name": "CSS Tutorial",
+			"path": "../../../../../../CSS Tutorial"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "HTML Tutorial"
+	}
+}

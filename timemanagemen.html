@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Daily Study Dashboard</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #101827;
+    color: #f8fafc;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+.subtitle, .muted {
+    color: #a8b4c7;
+}
+
+.card {
+    background: #1b2739;
+    border: 1px solid #344158;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+input, button {
+    font: inherit;
+}
+
+input[type="number"], input[type="text"], input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #475569;
+    border-radius: 7px;
+    background: #101827;
+    color: white;
+}
+
+label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+.study-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 120px;
+    gap: 12px;
+    align-items: end;
+    margin: 15px 0;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 11px 16px;
+    background: #38bdf8;
+    color: #082032;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 5px 5px 5px 0;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.secondary {
+    background: #334155;
+    color: white;
+}
+
+.progress-track {
+    background: #334155;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-fill {
+    background: #34d399;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #344158;
+}
+
+.task input {
+    width: 18px;
+    height: 18px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+th, td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #344158;
+    text-align: left;
+}
+
+canvas {
+    width: 100%;
+    max-height: 300px;
+}
+
+#message {
+    color: #6ee7b7;
+    min-height: 20px;
+}
+
+@media(max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+
+    .study-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .study-row > div:first-child {
+        grid-column: 1 / -1;
+    }
+
+    th, td {
+        padding: 8px 4px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <div>
+        <h1>📚 My Study Dashboard</h1>
+        <div class="subtitle">Learn every day. Improve every day.</div>
+    </div>
+    <div>
+        <label for="studyDate">Study date</label>
+        <input type="date" id="studyDate">
+    </div>
+</header>
+
+<section class="stats">
+    <div class="card">
+        <div class="muted">Total study hours</div>
+        <div class="stat-value" id="totalHours">0 h</div>
+    </div>
+
+    <div class="card">
+        <div class="muted">Daily goal</div>
+        <div class="stat-value" id="goalHours">8 h</div>
+    </div>
+
+    <div class="card">
+        <div class="muted">Goal progress</div>
+        <div class="stat-value" id="progressPercent">0%</div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="muted">Tasks completed</div>
+        <div class="stat-value" id="tasksCompleted">0/6</div>
+    </div>
+</section>
+
+<section class="card">
+    <h2>⏱️ Daily Study Hours</h2>
+    <p class="muted">Enter your actual study time in hours.</p>
+
+    <div id="studyInputs"></div>
+
+    <div style="max-width:220px">
+        <label for="dailyGoal">Daily study goal (hours)</label>
+        <input type="number" id="dailyGoal" min="0.5" max="24"
+               step="0.5" value="8">
+    </div>
+
+    <button id="saveButton">Save Daily Progress</button>
+    <button class="secondary" id="exportButton">Export CSV</button>
+    <p id="message" aria-live="polite"></p>
+</section>
+
+<section class="card">
+    <h2>✅ Daily Checklist</h2>
+
+    <div id="taskList">
+        <label class="task">
+            <input type="checkbox" data-task="Java programming">
+            Java programming practice
+        </label>
+
+        <label class="task">
+            <input type="checkbox" data-task="DSA">
+            DSA problems
+        </label>
+
+        <label class="task">
+            <input type="checkbox" data-task="College revision">
+            College subject revision
+        </label>
+
+        <label class="task">
+            <input type="checkbox" data-task="English">
+            English speaking practice
+        </label>
+
+        <label class="task">
+            <input type="checkbox" data-task="PBL">
+            PBL project work
+        </label>
+
+        <label class="task">
+            <input type="checkbox" data-task="Review">
+            Review today's learning
+        </label>
+    </div>
+
+    <label for="notes" style="margin-top:18px">
+        What did you learn today?
+    </label>
+    <input type="text" id="notes"
+           placeholder="Example: Java loops and graph algorithms">
+</section>
+
+<section class="card">
+    <h2>📈 Last Seven Days</h2>
+    <p class="muted">Your completed study hours for the latest seven dates.</p>
+    <canvas id="weeklyChart" height="220"></canvas>
+</section>
+
+<section class="card">
+    <h2>📅 Study History</h2>
+    <div style="overflow-x:auto">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Study hours</th>
+                    <th>Tasks</th>
+                    <th>Progress</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card">
+    <h2>🎯 Daily Reminder</h2>
+    <p>Small steps every day lead to big results.</p>
+    <p class="muted">
+        Focus on consistency, practise coding, revise your subjects,
+        and review what you learned.
+    </p>
+</section>
+
+</div>
+
+<script>
+(() => {
+    const subjects = [
+        "Java Programming",
+        "DSA Practice",
+        "College Subjects",
+        "English Speaking",
+        "PBL Project",
+        "Revision"
+    ];
+
+    const storageKey = "myStudyDashboard_v1";
+
+    const $ = id => document.getElementById(id);
+
+    const dateInput = $("studyDate");
+    const studyInputs = $("studyInputs");
+    const taskBoxes = [
+        ...document.querySelectorAll("[data-task]")
+    ];
+
+    let records = {};
+
+    try {
+        records = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        if (!records || typeof records !== "object" ||
+            Array.isArray(records)) {
+            records = {};
+        }
+    } catch {
+        records = {};
+    }
+
+    function localDateString(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    dateInput.value = localDateString();
+
+    subjects.forEach((subject, index) => {
+        const row = document.createElement("div");
+        row.className = "study-row";
+
+        const name = document.createElement("div");
+        name.textContent = subject;
+
+        const targetBox = document.createElement("div");
+        const targetLabel = document.createElement("label");
+        targetLabel.textContent = "Target hours";
+        targetLabel.htmlFor = `target-${index}`;
+
+        const target = document.createElement("input");
+        target.type = "number";
+        target.id = `target-${index}`;
+        target.min = "0";
+        target.max = "24";
+        target.step = "0.25";
+        target.value = [2, 2, 2, 0.5, 1, 0.5][index];
+
+        targetBox.append(targetLabel, target);
+
+        const doneBox = document.createElement("div");
+        const doneLabel = document.createElement("label");
+        doneLabel.textContent = "Completed";
+        doneLabel.htmlFor = `done-${index}`;
+
+        const done = document.createElement("input");
+        done.type = "number";
+        done.id = `done-${index}`;
+        done.min = "0";
+        done.max = "24";
+        done.step = "0.25";
+        done.value = "0";
+
+        doneBox.append(doneLabel, done);
+        row.append(name, targetBox, doneBox);
+        studyInputs.appendChild(row);
+    });
+
+    function numberValue(id, fallback = 0) {
+        const value = Number($(id).value);
+        if (!Number.isFinite(value) || value < 0 || value > 24) {
+            return fallback;
+        }
+        return value;
+    }
+
+    function collectRecord() {
+        const goal = Math.max(
+            0.5,
+            Math.min(24, Number($("dailyGoal").value) || 8)
+        );
+
+        const hours = subjects.map((subject, i) => ({
+            subject,
+            target: numberValue(`target-${i}`),
+            completed: numberValue(`done-${i}`)
+        }));
+
+        const total = hours.reduce(
+            (sum, item) => sum + item.completed, 0
+        );
+
+        const targets = hours.reduce(
+            (sum, item) => sum + item.target, 0
+        );
+
+        const completedTasks = taskBoxes
+            .filter(box => box.checked)
+            .map(box => box.dataset.task);
+
+        return {
+            date: dateInput.value,
+            goal,
+            hours,
+            total,
+            targets,
+            completedTasks,
+            notes: $("notes").value.trim(),
+            updatedAt: new Date().toISOString()
+        };
+    }
+
+    function drawChart() {
+        const canvas = $("weeklyChart");
+        const ctx = canvas.getContext("2d");
+
+        const width = Math.max(300, canvas.clientWidth);
+        const height = 220;
+        const ratio = window.devicePixelRatio || 1;
+
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+
+        const days = [];
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = localDateString(d);
+            days.push({
+                key,
+                label: d.toLocaleDateString("en", {
+                    weekday: "short"
+                }),
+                hours: records[key]?.total || 0
+            });
+        }
+
+        const maxHours = Math.max(
+            8,
+            ...days.map(d => d.hours)
+        );
+
+        const left = 35;
+        const right = 12;
+        const top
+    }
+}
